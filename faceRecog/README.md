@@ -38,26 +38,26 @@
 ## 🏗️ معماری سیستم
 
 ┌─────────────────┐
-│   Frontend      │
-│  (HTML/JS)      │
+│ Frontend │
+│ (HTML/JS) │
 └────────┬────────┘
-         │
-         ▼
+│
+▼
 ┌─────────────────┐
-│   FastAPI       │
-│   Backend       │
+│ FastAPI │
+│ Backend │
 ├─────────────────┤
-│ • Auth Routes   │
-│ • Face Routes   │
-│ • User Routes   │
+│ • Auth Routes │
+│ • Face Routes │
+│ • User Routes │
 └────────┬────────┘
-         │
-         ├──────────────┬──────────────┐
-         ▼              ▼              ▼
-┌─────────────┐  ┌──────────┐  ┌──────────────┐
-│ PostgreSQL  │  │  File    │  │ face_recog   │
-│  Database   │  │  System  │  │   Library    │
-└─────────────┘  └──────────┘  └──────────────┘
+│
+├──────────────┬──────────────┐
+▼ ▼ ▼
+┌─────────────┐ ┌──────────┐ ┌──────────────┐
+│ PostgreSQL │ │ File │ │ face_recog │
+│ Database │ │ System │ │ Library │
+└─────────────┘ └──────────┘ └──────────────┘
 
 ## 📦 پیش‌نیازها
 
@@ -80,6 +80,7 @@ bash
 brew install cmake
 
 **Windows:**
+
 - نصب [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/)
 - نصب [CMake](https://cmake.org/download/)
 
@@ -94,11 +95,14 @@ cd Chehre
 ### 2. ایجاد محیط مجازی
 
 bash
+
 # Windows
+
 python -m venv venv
 venv\Scripts\activate
 
 # Linux/macOS
+
 python3 -m venv venv
 source venv/bin/activate
 
@@ -111,17 +115,22 @@ pip install -r requirements.txt
 ### 4. تنظیم دیتابیس PostgreSQL
 
 bash
+
 # ورود به PostgreSQL
+
 psql -U postgres
 
 # ایجاد دیتابیس
+
 CREATE DATABASE face_recognition_db;
 
 # ایجاد کاربر (اختیاری)
+
 CREATE USER face_user WITH PASSWORD 'your_password';
 GRANT ALL PRIVILEGES ON DATABASE face_recognition_db TO face_user;
 
 # خروج
+
 \q
 
 ### 5. تنظیم متغیرهای محیطی
@@ -129,19 +138,24 @@ GRANT ALL PRIVILEGES ON DATABASE face_recognition_db TO face_user;
 فایل `.env` در root پروژه ایجاد کنید:
 
 env
+
 # Database
+
 DATABASE_URL=postgresql://postgres:your_password@localhost/face_recognition_db
 
 # JWT
+
 SECRET_KEY=your-secret-key-here-change-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # Upload
+
 UPLOAD_DIR=uploaded_faces
-MAX_FILE_SIZE=5242880  # 5MB
+MAX_FILE_SIZE=5242880 # 5MB
 
 # Server
+
 HOST=0.0.0.0
 PORT=8000
 DEBUG=True
@@ -158,10 +172,13 @@ python -c "from database import engine, Base; Base.metadata.create_all(bind=engi
 ### 7. اجرای سرور
 
 bash
+
 # حالت توسعه
+
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # حالت تولید
+
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 
 سرور روی `http://localhost:8000` در دسترس خواهد بود.
@@ -179,48 +196,48 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 
 bash
 curl -X POST "http://localhost:8000/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "password": "SecurePass123!",
-    "full_name": "John Doe"
-  }'
+ -H "Content-Type: application/json" \
+ -d '{
+"username": "john_doe",
+"email": "john@example.com",
+"password": "SecurePass123!",
+"full_name": "John Doe"
+}'
 
 #### 2. ورود و دریافت Token
 
 bash
 curl -X POST "http://localhost:8000/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=john_doe&password=SecurePass123!"
+ -H "Content-Type: application/x-www-form-urlencoded" \
+ -d "username=john_doe&password=SecurePass123!"
 
 پاسخ:
 json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
+"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+"token_type": "bearer"
 }
 
 #### 3. آپلود تصویر چهره
 
 bash
 curl -X POST "http://localhost:8000/upload-face/" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -F "file=@path/to/image.jpg" \
-  -F "label=john_doe"
+ -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+ -F "file=@path/to/image.jpg" \
+ -F "label=john_doe"
 
 #### 4. آموزش مدل
 
 bash
 curl -X POST "http://localhost:8000/train-model/" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+ -H "Authorization: Bearer YOUR_TOKEN_HERE"
 
 #### 5. تشخیص چهره
 
 bash
 curl -X POST "http://localhost:8000/recognize-face/" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -F "file=@path/to/test_image.jpg"
+ -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+ -F "file=@path/to/test_image.jpg"
 
 ### مثال استفاده با Python
 
@@ -230,158 +247,163 @@ import requests
 BASE_URL = "http://localhost:8000"
 
 # ثبت‌نام
+
 register_data = {
-    "username": "jane_doe",
-    "email": "jane@example.com",
-    "password": "SecurePass456!",
-    "full_name": "Jane Doe"
+"username": "jane_doe",
+"email": "jane@example.com",
+"password": "SecurePass456!",
+"full_name": "Jane Doe"
 }
 response = requests.post(f"{BASE_URL}/register", json=register_data)
 print(response.json())
 
 # ورود
+
 login_data = {
-    "username": "jane_doe",
-    "password": "SecurePass456!"
+"username": "jane_doe",
+"password": "SecurePass456!"
 }
 response = requests.post(f"{BASE_URL}/token", data=login_data)
 token = response.json()["access_token"]
 
 # Headers با token
+
 headers = {"Authorization": f"Bearer {token}"}
 
 # آپلود چهره
+
 with open("face_image.jpg", "rb") as f:
-    files = {"file": f}
-    data = {"label": "jane_doe"}
-    response = requests.post(
-        f"{BASE_URL}/upload-face/",
-        headers=headers,
-        files=files,
-        data=data
-    )
-    print(response.json())
+files = {"file": f}
+data = {"label": "jane_doe"}
+response = requests.post(
+f"{BASE_URL}/upload-face/",
+headers=headers,
+files=files,
+data=data
+)
+print(response.json())
 
 # آموزش مدل
+
 response = requests.post(f"{BASE_URL}/train-model/", headers=headers)
 print(response.json())
 
 # تشخیص چهره
+
 with open("test_image.jpg", "rb") as f:
-    files = {"file": f}
-    response = requests.post(
-        f"{BASE_URL}/recognize-face/",
-        headers=headers,
-        files=files
-    )
-    print(response.json())
+files = {"file": f}
+response = requests.post(
+f"{BASE_URL}/recognize-face/",
+headers=headers,
+files=files
+)
+print(response.json())
 
 ## 📚 API Documentation
 
 ### Authentication Endpoints
 
-| Method | Endpoint | توضیحات | نیاز به Auth | Request Body | Response |
-|:------:|:---------|:--------|:------------:|:-------------|:---------|
-| `POST` | `/register` | ثبت‌نام کاربر جدید | ❌ | `UserCreate` | `User` |
-| `POST` | `/token` | ورود و دریافت JWT token | ❌ | `OAuth2PasswordRequestForm` | `Token` |
-| `GET` | `/users/me` | دریافت اطلاعات کاربر فعلی | ✅ | - | `User` |
+| Method | Endpoint    | توضیحات                   | نیاز به Auth | Request Body                | Response |
+| :----: | :---------- | :------------------------ | :----------: | :-------------------------- | :------- |
+| `POST` | `/register` | ثبت‌نام کاربر جدید        |      ❌      | `UserCreate`                | `User`   |
+| `POST` | `/token`    | ورود و دریافت JWT token   |      ❌      | `OAuth2PasswordRequestForm` | `Token`  |
+| `GET`  | `/users/me` | دریافت اطلاعات کاربر فعلی |      ✅      | -                           | `User`   |
 
 **مثال Request Body برای `/register`:**
 json
 {
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "SecurePass123!",
-  "full_name": "John Doe"
+"username": "john_doe",
+"email": "john@example.com",
+"password": "SecurePass123!",
+"full_name": "John Doe"
 }
 
 **مثال Response برای `/token`:**
 json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
+"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+"token_type": "bearer"
 }
 
 ### Face Management Endpoints
 
-| Method | Endpoint | توضیحات | نیاز به Auth | Parameters | Response |
-|:------:|:---------|:--------|:------------:|:-----------|:---------|
-| `POST` | `/upload-face/` | آپلود تصویر چهره | ✅ | `file`, `label` | `{"message": "..."}` |
-| `POST` | `/train-model/` | آموزش مدل تشخیص | ✅ | - | `{"message": "..."}` |
-| `POST` | `/recognize-face/` | تشخیص چهره از تصویر | ✅ | `file` | `{"recognized_faces": [...]}` |
-| `GET` | `/recognition-logs/` | دریافت تاریخچه تشخیص‌ها | ✅ | `skip`, `limit` | `[RecognitionLog]` |
+| Method | Endpoint             | توضیحات                 | نیاز به Auth | Parameters      | Response                      |
+| :----: | :------------------- | :---------------------- | :----------: | :-------------- | :---------------------------- |
+| `POST` | `/upload-face/`      | آپلود تصویر چهره        |      ✅      | `file`, `label` | `{"message": "..."}`          |
+| `POST` | `/train-model/`      | آموزش مدل تشخیص         |      ✅      | -               | `{"message": "..."}`          |
+| `POST` | `/recognize-face/`   | تشخیص چهره از تصویر     |      ✅      | `file`          | `{"recognized_faces": [...]}` |
+| `GET`  | `/recognition-logs/` | دریافت تاریخچه تشخیص‌ها |      ✅      | `skip`, `limit` | `[RecognitionLog]`            |
 
 **مثال Response برای `/recognize-face/`:**
 json
 {
-  "recognized_faces": [
-    {
-      "label": "john_doe",
-      "confidence": 0.95,
-      "location": {
-        "top": 100,
-        "right": 300,
-        "bottom": 400,
-        "left": 200
-      }
-    }
-  ]
+"recognized_faces": [
+{
+"label": "john_doe",
+"confidence": 0.95,
+"location": {
+"top": 100,
+"right": 300,
+"bottom": 400,
+"left": 200
+}
+}
+]
 }
 
 ### Admin Endpoints
 
-| Method | Endpoint | توضیحات | نیاز به Auth | Parameters | Response |
-|:------:|:---------|:--------|:------------:|:-----------|:---------|
-| `GET` | `/users/` | لیست تمام کاربران | ✅ Admin | `skip`, `limit` | `[User]` |
-| `DELETE` | `/users/{user_id}` | حذف کاربر | ✅ Admin | `user_id` | `{"message": "..."}` |
+|  Method  | Endpoint           | توضیحات           | نیاز به Auth | Parameters      | Response             |
+| :------: | :----------------- | :---------------- | :----------: | :-------------- | :------------------- |
+|  `GET`   | `/users/`          | لیست تمام کاربران |   ✅ Admin   | `skip`, `limit` | `[User]`             |
+| `DELETE` | `/users/{user_id}` | حذف کاربر         |   ✅ Admin   | `user_id`       | `{"message": "..."}` |
 
 ### Static Pages
 
-| Method | Endpoint | توضیحات |
-|:------:|:---------|:--------|
-| `GET` | `/` | صفحه اصلی |
-| `GET` | `/upload` | صفحه آپلود چهره |
-| `GET` | `/recognize` | صفحه تشخیص چهره |
+| Method | Endpoint     | توضیحات         |
+| :----: | :----------- | :-------------- |
+| `GET`  | `/`          | صفحه اصلی       |
+| `GET`  | `/upload`    | صفحه آپلود چهره |
+| `GET`  | `/recognize` | صفحه تشخیص چهره |
 
 ## 🗄️ ساختار دیتابیس
 
 ### جدول `users`
 
-| ستون | نوع | توضیحات | Constraints |
-|:-----|:----|:--------|:------------|
-| `id` | `Integer` | شناسه یکتا | Primary Key, Auto Increment |
-| `username` | `String(50)` | نام کاربری | Unique, Not Null, Index |
-| `email` | `String(100)` | ایمیل | Unique, Not Null, Index |
-| `hashed_password` | `String(255)` | رمز عبور هش شده | Not Null |
-| `full_name` | `String(100)` | نام کامل | Nullable |
-| `is_active` | `Boolean` | وضعیت فعال بودن | Default: True |
-| `is_admin` | `Boolean` | دسترسی ادمین | Default: False |
-| `created_at` | `DateTime` | تاریخ ایجاد | Default: Now |
+| ستون              | نوع           | توضیحات         | Constraints                 |
+| :---------------- | :------------ | :-------------- | :-------------------------- |
+| `id`              | `Integer`     | شناسه یکتا      | Primary Key, Auto Increment |
+| `username`        | `String(50)`  | نام کاربری      | Unique, Not Null, Index     |
+| `email`           | `String(100)` | ایمیل           | Unique, Not Null, Index     |
+| `hashed_password` | `String(255)` | رمز عبور هش شده | Not Null                    |
+| `full_name`       | `String(100)` | نام کامل        | Nullable                    |
+| `is_active`       | `Boolean`     | وضعیت فعال بودن | Default: True               |
+| `is_admin`        | `Boolean`     | دسترسی ادمین    | Default: False              |
+| `created_at`      | `DateTime`    | تاریخ ایجاد     | Default: Now                |
 
 ### جدول `faces`
 
-| ستون | نوع | توضیحات | Constraints |
-|:-----|:----|:--------|:------------|
-| `id` | `Integer` | شناسه یکتا | Primary Key, Auto Increment |
-| `user_id` | `Integer` | شناسه کاربر | Foreign Key → users.id |
-| `label` | `String(100)` | برچسب چهره | Not Null, Index |
-| `image_path` | `String(255)` | مسیر فایل تصویر | Not Null |
-| `encoding` | `LargeBinary` | encoding چهره | Nullable |
-| `uploaded_at` | `DateTime` | تاریخ آپلود | Default: Now |
+| ستون          | نوع           | توضیحات         | Constraints                 |
+| :------------ | :------------ | :-------------- | :-------------------------- |
+| `id`          | `Integer`     | شناسه یکتا      | Primary Key, Auto Increment |
+| `user_id`     | `Integer`     | شناسه کاربر     | Foreign Key → users.id      |
+| `label`       | `String(100)` | برچسب چهره      | Not Null, Index             |
+| `image_path`  | `String(255)` | مسیر فایل تصویر | Not Null                    |
+| `encoding`    | `LargeBinary` | encoding چهره   | Nullable                    |
+| `uploaded_at` | `DateTime`    | تاریخ آپلود     | Default: Now                |
 
 ### جدول `recognition_logs`
 
-| ستون | نوع | توضیحات | Constraints |
-|:-----|:----|:--------|:------------|
-| `id` | `Integer` | شناسه یکتا | Primary Key, Auto Increment |
-| `user_id` | `Integer` | شناسه کاربر | Foreign Key → users.id |
-| `recognized_label` | `String(100)` | برچسب تشخیص داده شده | Nullable |
-| `confidence` | `Float` | درصد اطمینان | Nullable |
-| `image_path` | `String(255)` | مسیر تصویر تست | Nullable |
-| `timestamp` | `DateTime` | زمان تشخیص | Default: Now |
+| ستون               | نوع           | توضیحات              | Constraints                 |
+| :----------------- | :------------ | :------------------- | :-------------------------- |
+| `id`               | `Integer`     | شناسه یکتا           | Primary Key, Auto Increment |
+| `user_id`          | `Integer`     | شناسه کاربر          | Foreign Key → users.id      |
+| `recognized_label` | `String(100)` | برچسب تشخیص داده شده | Nullable                    |
+| `confidence`       | `Float`       | درصد اطمینان         | Nullable                    |
+| `image_path`       | `String(255)` | مسیر تصویر تست       | Nullable                    |
+| `timestamp`        | `DateTime`    | زمان تشخیص           | Default: Now                |
 
 ### روابط جداول
-
 
 users (1) ──────< (N) faces
 users (1) ──────< (N) recognition_logs
@@ -418,11 +440,11 @@ python
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://yourdomain.com"],  # دامنه‌های مجاز
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
+CORSMiddleware,
+allow_origins=["https://yourdomain.com"], # دامنه‌های مجاز
+allow_credentials=True,
+allow_methods=["GET", "POST", "PUT", "DELETE"],
+allow_headers=["*"],
 )
 
 ## 🧪 تست
@@ -436,47 +458,53 @@ app.add_middleware(
 ### تست با pytest (در صورت وجود تست‌ها)
 
 bash
+
 # نصب pytest
+
 pip install pytest pytest-asyncio httpx
 
 # اجرای تست‌ها
+
 pytest tests/ -v
 
 # اجرای تست‌ها با coverage
+
 pytest tests/ --cov=. --cov-report=html
 
 ### مثال تست ساده
 
 python
+
 # tests/test_auth.py
+
 from fastapi.testclient import TestClient
 from main import app
 
 client = TestClient(app)
 
 def test_register_user():
-    response = client.post(
-        "/register",
-        json={
-            "username": "testuser",
-            "email": "test@example.com",
-            "password": "TestPass123!",
-            "full_name": "Test User"
-        }
-    )
-    assert response.status_code == 200
-    assert "id" in response.json()
+response = client.post(
+"/register",
+json={
+"username": "testuser",
+"email": "test@example.com",
+"password": "TestPass123!",
+"full_name": "Test User"
+}
+)
+assert response.status_code == 200
+assert "id" in response.json()
 
 def test_login():
-    response = client.post(
-        "/token",
-        data={
-            "username": "testuser",
-            "password": "TestPass123!"
-        }
-    )
-    assert response.status_code == 200
-    assert "access_token" in response.json()
+response = client.post(
+"/token",
+data={
+"username": "testuser",
+"password": "TestPass123!"
+}
+)
+assert response.status_code == 200
+assert "access_token" in response.json()
 
 ## 🔧 عیب‌یابی
 
@@ -490,13 +518,17 @@ ERROR: Could not build wheels for dlib
 
 **راه‌حل:**
 bash
+
 # Ubuntu/Debian
+
 sudo apt-get install build-essential cmake
 
 # macOS
+
 brew install cmake
 
 # Windows
+
 # نصب Visual Studio Build Tools
 
 #### 2. خطای اتصال به دیتابیس
@@ -506,15 +538,19 @@ brew install cmake
 sqlalchemy.exc.OperationalError: could not connect to server
 
 **راه‌حل:**
+
 - بررسی کنید PostgreSQL در حال اجرا است
 - `DATABASE_URL` در `.env` را بررسی کنید
 - دسترسی‌های کاربر دیتابیس را چک کنید
 
 bash
+
 # بررسی وضعیت PostgreSQL
+
 sudo systemctl status postgresql
 
 # راه‌اندازی PostgreSQL
+
 sudo systemctl start postgresql
 
 #### 3. خطای JWT Token
@@ -524,6 +560,7 @@ sudo systemctl start postgresql
 Could not validate credentials
 
 **راه‌حل:**
+
 - مطمئن شوید token منقضی نشده است
 - `SECRET_KEY` را بررسی کنید
 - فرمت header را چک کنید: `Authorization: Bearer <token>`
@@ -535,6 +572,7 @@ Could not validate credentials
 File size exceeds maximum allowed size
 
 **راه‌حل:**
+
 - حجم فایل را کاهش دهید (حداکثر 5MB)
 - فرمت فایل را بررسی کنید (فقط JPG, PNG)
 
@@ -545,6 +583,7 @@ File size exceeds maximum allowed size
 No faces found in the image
 
 **راه‌حل:**
+
 - کیفیت تصویر را بهبود دهید
 - نور کافی در تصویر داشته باشید
 - چهره باید واضح و رو به دوربین باشد
@@ -555,10 +594,13 @@ No faces found in the image
 برای مشاهده لاگ‌های دقیق‌تر:
 
 bash
+
 # اجرا با لاگ debug
+
 uvicorn main:app --reload --log-level debug
 
 # ذخیره لاگ‌ها در فایل
+
 uvicorn main:app --reload --log-config logging.conf
 
 ## 🚀 بهبودهای آینده
