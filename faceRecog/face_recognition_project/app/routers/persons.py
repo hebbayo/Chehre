@@ -17,7 +17,7 @@ class PersonResponse(BaseModel):
     created_at: str
 
 
-@router.post("/persons", response_model=PersonResponse)
+@router.post("/", response_model=PersonResponse)
 def create_person(person: PersonCreate):
     """ایجاد person جدید"""
     with get_db() as db:
@@ -29,7 +29,7 @@ def create_person(person: PersonCreate):
     return result
 
 
-@router.get("/persons/{person_id}", response_model=PersonResponse)
+@router.get("/{person_id}", response_model=PersonResponse)
 def get_person(person_id: int):
     """دریافت person با ID"""
     with get_db() as db:
@@ -43,7 +43,7 @@ def get_person(person_id: int):
     return person
 
 
-@router.get("/persons")
+@router.get("/")
 def get_all_persons():
     """دریافت تمام persons"""
     with get_db() as db:
@@ -52,7 +52,7 @@ def get_all_persons():
     return {"persons": persons}
 
 
-@router.delete("/persons/{person_id}")
+@router.delete("/{person_id}")
 def delete_person(person_id: int):
     """حذف person"""
     with get_db() as db:

@@ -1,8 +1,14 @@
 # app/database.py
+import os
 import psycopg2
 from contextlib import contextmanager
+from dotenv import load_dotenv
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/face_recognition"
+load_dotenv()
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:hebbayo121@localhost:5432/chehre_db",
+)
 
 
 @contextmanager
@@ -28,35 +34,66 @@ def init_db():
     """مقداردهی اولیه دیتابیس"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        # جدول persons
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(50) NOT NULL UNIQUE,
+                email VARCHAR(100) NOT NULL UNIQUE,
+                hashed_password VARCHAR(255) NOT NULL,
+                full_name VARCHAR(100),
+                is_superuser BOOLEAN NOT NULL DEFAULT FALSE,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS persons (
                 id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL UNIQUE,
+                name VARCHAR(255) NOT NULL,
+                created_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS face_images (
+                id SERIAL PRIMARY KEY,
+                person_id INTEGER REFERENCES persons(id) ON DELETE CASCADE,
+                user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                image_path VARCHAR(500),
+                image_data BYTEA,
+                metadata JSONB,
+                uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS face_embeddings (
+                id SERIAL PRIMARY KEY,
+                person_id INTEGER REFERENCES persons(id) ON DELETE CASCADE,
+                embedding BYTEA NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
-        # جدول faces
+
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS faces (
+            CREATE TABLE IF NOT EXISTS recognition_logs (
                 id SERIAL PRIMARY KEY,
-                person_id INTEGER NOT NULL,
-                image_data BYTEA NOT NULL,
-                embedding BYTEA,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (person_id) REFERENCES persons (id) ON DELETE CASCADE
+                user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                person_id INTEGER REFERENCES persons(id) ON DELETE SET NULL,
+                recognized BOOLEAN NOT NULL DEFAULT FALSE,
+                confidence DOUBLE PRECISION,
+                image_path VARCHAR(500),
+                metadata JSONB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
-        conn.commit()
-        print("Database initialized successfully")
-    except Exception as e:
-        conn.rollback()
-        print(f"Error initializing database: {e}")
-        raise
+
     finally:
         cursor.close()
         conn.close()
